@@ -1,0 +1,65 @@
+<script>
+import jq from "../assets/jquery.min"
+import fi from "../assets/fish"
+import Vue from 'vue'
+Vue.use(jq);
+Vue.use(fi);
+export default {
+  name: "Fish",
+  // data() {
+  //   return {
+  //     backgroundStyle: {
+  //       background: 'linear-gradient(to right, rgba(89, 114, 192, 0.8), rgba(89, 114, 192, 0.2))',
+  //       'background-size': '400% 400%',
+  //       animation: 'gradientBG 5s ease infinite'
+  //     }
+  //   };
+  // }
+}
+</script>
+
+<template>
+<!--  <div :style="backgroundStyle" id ="www">-->
+    <div id="jsi-flying-fish-container" class="container"></div>
+
+<!--  </div>-->
+</template>
+
+<style scoped lang="scss">
+//#www{width:100%;height:100%;margin:0;padding:0;}
+//#www{
+//  background: -webkit-linear-gradient(left,rgba(89,114,192,0.8),rgba(89,114,192,0.2));
+//  background: -o-linear-gradient(right,rgba(89,114,192,0.8),rgba(89,114,192,0.2));
+//  background: -moz-linear-gradient(right,rgba(89,114,192,0.8),rgba(89,114,192,0.2));
+//  background: linear-gradient(to right, rgba(89,114,192,0.8), rgba(89,114,192,0.2));
+//  background-size: 400% 400%;
+//  animation: gradientBG 5s ease infinite;
+//}
+//#www {
+//  background: linear-gradient(to right, rgba(89, 114, 192, 0.8), rgba(89, 114, 192, 0.2));
+//  background-size: 400% 400%;
+//  animation: gradientBG 5s ease infinite;
+//}
+//@keyframes gradientBG {
+//  0% {
+//    background-position: 0% 50%;
+//  }
+//  50% {
+//    background-position: 100% 50%;
+//  }
+//  100% {
+//    background-position: 0% 50%;
+//  }
+//}
+.container{
+  margin:0;
+  padding:0;
+  background-color:transparent;
+  width:100%;
+  height:200px;
+  z-index:-1;
+  position:fixed;
+  bottom:0;
+  left:0;}
+
+</style>
