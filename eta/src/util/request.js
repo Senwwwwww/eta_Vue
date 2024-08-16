@@ -55,4 +55,4 @@ let setToken =function(){
     instance.defaults.headers.common['token'] = sessionStorage.getItem('token');
 }
 // 导出
-export {get,post,setToken,instance}
+export {get,post,instance,setToken}

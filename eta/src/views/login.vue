@@ -92,6 +92,7 @@ export default {
             // local里面的一直存在
             // session里面的数据随着浏览器关闭而消失
             // 将token保存到请求头中
+            console.log(token);
             this.$setToken()
             //保存登录名
             localStorage.setItem("loginID",this.form.username)

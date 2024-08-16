@@ -7,8 +7,8 @@ export default {
     admin:{}
   },
   mutations: {
-    setAdmin(state,admin){
-      state.admin = admin
+    setAdmin(state,val){
+      state.admin = val
     }
   }
 }

@@ -10,6 +10,7 @@ import FeedbackRecords from "@/components/FeedbackRecords.vue";
 import {instance} from "@/util/request";
 import SetUsernameDialog from "@/components/SetUsernameDialog.vue";
 import {mapMutations} from "vuex";
+import {mapState} from "vuex";
 
 export default {
   components: {
@@ -25,36 +26,41 @@ export default {
 
   created() {
     if(localStorage.getItem("loginID")) {
+      this.$setToken()
       // 获取用户ID
       instance.get("user/name/" + localStorage.getItem('loginID'),this.username).then(res => {
-        this.setAdmin(res);
+        this.$store.commit("setAdmin", res)
         console.log(this.$store.state.admin)
-      }).catch(err => {
-        this.$message.error("请先登录再访问管理页面")
+        // 获取用户名称
+        this.$setToken()
+        instance.get("user/id/" + this.$store.state.admin.admin.data.data.userId).then(res1 => {
+          if (res1.data.name) {
+            this.$store.commit("setName", res1.data.name)
+          }
+        })
+            .catch(async err => {
+              // sessionStorage.getItem("loginID")
+              if (this.$store.state.admin.data) {
+                this.$message.warning("请设置用户名")
+                // 在此处应用一个弹窗，要求用户设置用户名
+                this.$refs.setUsernameDialog.open(); // 打开弹窗
+              }
+            })
       })
+      //设置等待时间
 
-      // 获取用户名称
-      instance.get("user/id/" +this.$store.state.admin.data.userId).then(res => {
-        if(res.data.name) {
-          this.$store.commit("setName", res.data.name)
-        }
-      })
-          .catch(async err => {
-            // sessionStorage.getItem("loginID")
-            if (this.$store.state.username) {
-              this.$message.warning("请设置用户名")
-              // 在此处应用一个弹窗，要求用户设置用户名
-              this.$refs.setUsernameDialog.open(); // 打开弹窗
-            }
-          })
+
+
+
+
     }else{
       this.$message.error("请先登录再访问管理页面")
       this.$router.push('/login')
     }
-  },
+
+    },
   methods: {
-    // 导入vuex登录账号方法
-    ...('admin',['setAdmin']),
+    ...('admin', ['setAdmin']),
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
     },
@@ -66,7 +72,9 @@ export default {
     },
     exit(){
       // 退出登录
-      sessionStorage.removeItem('token')
+      if(sessionStorage.getItem('token')) {
+        sessionStorage.removeItem('token')
+      }
       localStorage.removeItem("loginID")
       // 如果不为空则移除
       if(localStorage.getItem("password") !== null){
