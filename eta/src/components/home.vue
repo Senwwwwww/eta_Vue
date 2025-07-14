@@ -1,69 +1,65 @@
+<!-- src/views/Dashboard.vue -->
 <template>
-  <div class="home-page">
-    <el-card class="box-card">
-      <div slot="header" class="clearfix">
-        <span>我的首页</span>
-      </div>
-      <div class="card-content">
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-card shadow="hover" class="info-card">
-              <div class="card-header">未读提醒</div>
-              <div class="card-body">
-                <el-link type="primary" @click="goToMessageCenter">查看消息中心</el-link>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col :span="12">
-            <el-card shadow="hover" class="info-card">
-              <div class="card-header">个人信息</div>
-              <div class="card-body">
-                <el-link type="primary" @click="goToPersonalInfo">查看个人信息</el-link>
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
-      </div>
-    </el-card>
+  <div class="dashboard">
+    <div>
+      <home_vue1 v-if="isDepartmentOne" />
+    </div>
+    <div>
+      <VideoControlPage v-if="isDepartmentTwo" />
+    </div>
   </div>
 </template>
 
 <script>
+import Home_vue1 from "@/components/home1.vue";
+import VideoControlPage from "@/components/home_vue2.vue";
+
 export default {
-  name: "home_vue",
-  methods: {
-    goToMessageCenter() {
-      this.$router.push('/layout/message');
+  name:"home_vue",
+  components: {
+    Home_vue1,
+    VideoControlPage
+  },
+  computed: {
+    // 安全获取用户数据
+    userData() {
+      return this.$store.state?.admin?.admin?.data?.data || {};
     },
-    goToPersonalInfo() {
-      this.$router.push('/layout/person');
+
+    // 安全获取部门信息
+    userDepartment() {
+      return this.userData.department || {};
+    },
+
+    // 安全获取部门ID
+    userDepartmentId() {
+      return this.userDepartment.departmentId || null;
+    },
+
+    // 安全获取角色信息
+    userRole() {
+      return this.userData.role || {};
+    },
+
+    // 安全获取员工DTO
+    userEmployeeDTO() {
+      return this.userData.employeeDTO || null;
+    },
+
+    // 使用计算属性从 store 中获取 departmentId
+    isDepartmentOne() {
+      // 如果员工DTO为空，默认显示部门一的内容
+      if (this.userEmployeeDTO === null) {
+        return true;
+      }
+      // 部门ID为2或者角色等级为1000时显示部门一的内容
+      return (this.userDepartmentId === 2) || (this.userRole.roleLevel === 1000);
+    },
+
+    isDepartmentTwo() {
+      // 只有部门ID为1时显示部门二的内容
+      return this.userDepartmentId === 1;
     }
   }
 };
 </script>
-
-<style scoped>
-.home-page {
-  padding: 20px;
-  background-color: #f9fafc;
-}
-
-.card-content {
-  margin-top: 20px;
-}
-
-.info-card {
-  background-color: #ffffff;
-  padding: 20px;
-}
-
-.card-header {
-  font-size: 18px;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.card-body {
-  font-size: 16px;
-}
-</style>

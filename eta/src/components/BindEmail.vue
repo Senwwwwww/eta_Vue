@@ -53,6 +53,7 @@ export default {
         email: '',
         verificationCode: '',
         userId:sessionStorage.getItem("userID"),
+        username: localStorage.getItem("loginID"),
 
       },
       rules: {
@@ -70,19 +71,17 @@ export default {
   methods: {
     sendVerificationCode() {
       if (!this.form.email) {
-        this.dialogMessage = '请先输入邮箱';
-        this.dialogVisible = true;
+        this.$message.warning('请先输入邮箱')
         return;
       }
-      sendEmailVerification(this.form.email)
+      sendEmailVerification(this.form.email,this.form.username)
           .then(response => {
-            this.dialogMessage = '验证码已发送到您的邮箱';
-            this.dialogVisible = true;
+          this.$message.success("验证码已发送到您的邮箱")
           })
-          .catch(error => {
-            this.dialogMessage = '发送验证码失败，请稍后再试';
-            this.dialogVisible = true;
-          });
+          // .catch(error => {
+          //   this.dialogMessage = '发送验证码失败，请稍后再试';
+          //   this.dialogVisible = true;
+          // });
     },
     onSubmit(formName) {
       this.$refs[formName].validate(async (valid) => {
@@ -91,7 +90,7 @@ export default {
           verifyCode(this.form.email,this.form.verificationCode)
           .then(async response => {
             console.log(sessionStorage.getItem("userID"))
-           instance.put('/user/update/'+sessionStorage.getItem("userID")+'?'+'userId='+this.form.userId+'&&'+'email='+this.form.email,this.form).then(response => {
+           instance.put('/user/login/update/'+sessionStorage.getItem("userID")+'?'+'userId='+this.form.userId+'&&'+'email='+this.form.email,this.form).then(response => {
              console.log(response.data.success)
              if(response.data.success){
                this.$message.success("绑定成功")

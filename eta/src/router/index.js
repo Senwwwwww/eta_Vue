@@ -10,6 +10,10 @@ const routes = [
     component: () => import('../views/layout.vue'),
     children:[
       {
+        path: "addJian",
+        component:()=>import('../components/addJian.vue')
+      },
+      {
         path:"appre",
         component:()=>import('../components/ApplicationRecords.vue')
       },{
@@ -35,6 +39,10 @@ const routes = [
         component:()=>import('../components/PersonalInfo.vue')
       },
       {
+        path:"AttUser",
+        component:()=>import('../components/AttUser.vue')
+      },
+      {
         path:"change",
         component:()=>import('../components/ChangePassword.vue')
       },
@@ -53,7 +61,48 @@ const routes = [
       {
         path:"manage",
         component:()=>import('../components/Manage.vue')
-      }
+      },
+      {
+        path:"attendanceManage",
+        component:()=>import('../components/AttendanceManage.vue')
+      },{
+      path:'feedManage',
+        component:()=>import('../components/FeedbackManage.vue')
+      },
+      {
+        path:"usermanage",
+        component:()=>import('../components/Usermanage.vue')
+      },{
+      path:"AttReAll",
+        component:()=>import('../components/Attendance.vue')
+      },{
+      path: "manageEmployee",
+        component:()=>import('../components/ManageEmployee.vue')
+      },
+      {
+        path:"attenGui",
+        component:()=>import('../components/AttendanceGui.vue')
+      },
+        {
+          path:"Jianxiu",
+          component:()=>import('../components/jianxiu.vue')
+        },
+      {
+        path:"attendanceChange",
+        component:()=>import('../components/attendanceChange.vue')
+      },
+        {
+          path:"qr",
+          component:()=>import('../views/qrcode.vue')
+        },
+      {
+        path:"qrcreate",
+        component:()=>import('../components/qrcreate.vue')
+      },
+        {
+          path:"instrumentChange",
+          component:()=>import('../components/instrumentChange.vue')
+        },
     ]
   },
   {
@@ -94,6 +143,14 @@ const routes = [
     path:"/bind",
     component:()=>import('../components/BindEmail.vue')
   },
+  {
+    path:"/items",
+    component:()=>import('../views/items.vue')
+  },
+    {
+      path:"/monitor",
+      component:()=>import('../components/kongzhi.vue')
+    },
 
 
 
@@ -104,21 +161,7 @@ const routes = [
     path: "*",
     component:()=>import('../components/NotFound.vue')
   }
-    // {
-    //   path:"/",
-    //   name:"fish",
-    //   component:()=>import('../components/Fish.vue')
-    // }
-  // {
-  //   path:"/",
-  //   name:"message",
-  //   component:()=>import('../components/PersonalInfo.vue')
-  // }
-  // {
-  //   path:"/",
-  //   name:"index",
-  //   component:()=>import('../views/index.vue')
-  // }
+
 
 
 

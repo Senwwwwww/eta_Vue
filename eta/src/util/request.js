@@ -9,7 +9,7 @@ import 'nprogress/nprogress.css'
 // 初始化一个axios对象
 var instance = axios.create({
     // 接口的根路径
-    baseURL: "http://192.168.50.226:8004",
+    baseURL: "http://10.100.164.82:8004",
     // 请求超时时间
     timeout: 5000,
 })
@@ -31,6 +31,12 @@ let post =async function(url,prams){
 instance.interceptors.request.use(function (config) {
     // 在发送请求之前做些什么
    NProgress.start();
+    // ✅ 加入 Authorization 请求头
+    const token = sessionStorage.getItem('token');
+    if (token) {
+        config.headers['Authorization'] = 'Bearer ' + token;
+    }
+
     return config;
   }, function (error) {
     // 对请求错误做些什么

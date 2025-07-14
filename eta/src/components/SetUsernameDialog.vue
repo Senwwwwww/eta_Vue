@@ -7,7 +7,7 @@
   >
     <el-form :model="form">
       <el-form-item label="用户名" :label-width="formLabelWidth">
-        <el-input v-model="form.username"></el-input>
+        <el-input v-model="form.name"></el-input>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -26,7 +26,7 @@ export default {
     return {
       visible: false,
       form: {
-        username: ""
+        name: ""
       },
       formLabelWidth: "100px"
     };
@@ -39,25 +39,30 @@ export default {
       this.visible = false;
     },
     handleConfirm() {
-      if (this.form.username.trim() === "") {
+      if (this.form.name.trim() === "") {
         this.$message.error("用户名不能为空");
         return;
       }
-      instance.put("/user/username", this.username).then(
+      if (this.form.name.length >= 10) {
+        this.$message.error("用户名长度必须小于 10 个字符");
+        return;
+      }
+      this.$setToken()
+      instance.put("/user/login/setName/"+this.$store.state.admin.admin.data.data.userId+'?'+'userId='+this.form.userId+'&&'+'name='+this.form.name,this.form).then(
           response => {
             if(response.data.success) {
               this.$emit("username-set", this.form.username);
               this.$message.success("设置成功");
               this.handleClose();
+              this.$store.commit("setAdmin", response)
             }else{
               this.$message.error(response.data.errorMsg);
             }
           }
-      ).catch(error => {
-        this.$message.error("设置失败");
-      });
-
-      // instance.put()
+      )
+          .catch(error=>{
+            this.$message.error("请求失败");
+          })
     }
   }
 };

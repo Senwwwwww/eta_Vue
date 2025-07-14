@@ -6,7 +6,7 @@
       <div id="image_lo">
       <img src="../assets/logo.png" alt="" class="logo"/>
       </div>
-      <h3 class="login-title" id="image_lo2">智慧考勤管理</h3>
+      <h2 class="login-title" id="image_lo2">智慧电力全景监控与管理系统</h2>
       <el-form-item label="账号" prop="username">
         <el-input type="text" placeholder="请输入账号" v-model="form.username"/>
       </el-form-item>
@@ -43,6 +43,7 @@
 import fish from "@/components/Fish.vue";
 import {strTomd5} from "@/util/md5";
 import Fish from "@/components/Fish.vue";
+import {instance} from "@/util/request";
 // 导入md5加密方法
 export default {
   name: "login_vue",
@@ -56,6 +57,7 @@ export default {
         Md5password:'',
         // 添加一个隐藏的字段，用于防止表单被恶意利用
         honeypot:''
+
       },
       rules: {
         username: [
@@ -66,6 +68,14 @@ export default {
         ]
       },
       dialogVisible: false
+    }
+  },
+  created() {
+    if(localStorage.getItem("loginID")){
+      this.form.username = localStorage.getItem("loginID")
+    }
+    if(localStorage.getItem("password")){
+      this.form.password = localStorage.getItem("password")
     }
   },
   methods: {
@@ -80,37 +90,42 @@ export default {
           // 实现登录
           // 对密码进行加密
           this.form.Md5password = strTomd5(this.form.password);
-         let {errorMsg,success,token} =await this.$post('/user/login',this.form);
+         instance.post('/user/login',this.form)
+
+             .then(response => {
+               if(response.data.success){
+                 this.$message.success("登录成功")
+                 this.$store.commit('admin/setUsername',this.form.username)
+                 // 如果成功，服务器会返回一个token（令牌），这个token令牌里面保存的就是你的身份
+                 // 所以需要保存该token信息，通常会保存在浏览器的缓存空间中
+                 sessionStorage.setItem('token',response.data.token)
+                 // 浏览器的缓存空间有两种 local和session storage
+                 // local里面的一直存在
+                 // session里面的数据随着浏览器关闭而消失
+                 // 将token保存到请求头中
+                 this.$setToken()
+                 //保存登录名
+                 localStorage.setItem("loginID",this.form.username)
+                 // 在浏览器中保存登录名
+                 if(this.form.delivery){
+                   localStorage.setItem("password",this.form.password)
+                 }
+                 this.$store.dispatch('logActivity', '登录')
+                 // 设置延迟跳转
+                 setTimeout(() => {
+                   window.location.href = '/layout/home';
+                 }, 100);
+
+
+               }else{
+                 this.$message.error(response.data.errorMsg)
+               }
+})
+             .catch(error => {
+               this.$message.error("登录失败")
+             })
          // 判断是否登录成功
-          if(success){
-            this.$message.success("登录成功")
-            this.$store.commit('admin/setUsername',this.form.username)
-            // 如果成功，服务器会返回一个token（令牌），这个token令牌里面保存的就是你的身份
-            // 所以需要保存该token信息，通常会保存在浏览器的缓存空间中
-            sessionStorage.setItem('token',token)
-            // 浏览器的缓存空间有两种 local和session storage
-            // local里面的一直存在
-            // session里面的数据随着浏览器关闭而消失
-            // 将token保存到请求头中
-            console.log(token);
-            this.$setToken()
-            //保存登录名
-            localStorage.setItem("loginID",this.form.username)
-            // 在浏览器中保存登录名
-            if(this.form.delivery){
-              localStorage.setItem("password",this.form.password)
-            }
-            // 设置延迟跳转
-            setTimeout(() => {
-              window.location.href = '/layout';
-            }, 100);
-
-
-          }else{
-            this.$message.error(errorMsg)
-          }
         } else {
-          this.dialogVisible = true;
           return false;
         }
       });
@@ -149,7 +164,7 @@ export default {
   margin: 20px 0;
   color: #303133;
   font-weight: bold;
-  font-size: 20px;  /* 增加标题字体大小 */
+  font-size: 22px;  /* 增加标题字体大小 */
 }
 
 .button-container {

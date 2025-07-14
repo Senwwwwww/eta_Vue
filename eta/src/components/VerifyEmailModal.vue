@@ -41,7 +41,8 @@ export default {
       form: {
         email: '',
         verificationCode: '',
-        userId:this.$store.state.userID,
+        userId:this.$store.state.admin.admin.data.data.userId,
+        username:localStorage.getItem("loginID"),
       },
       rules: {
         email: [
@@ -57,7 +58,7 @@ export default {
         this.$message.error('请先输入邮箱')
         return;
       }
-      sendEmailVerification(this.form.email)
+      sendEmailVerification(this.form.email,this.form.username)
           .then(response => {
             // this.dialogMessage = '验证码已发送到您的邮箱';
             // // this.dialogVisible = true;
@@ -76,24 +77,26 @@ export default {
           // Call API to verify the code and bind the email
           verifyCode(this.form.email, this.form.verificationCode)
               .then(async response => {
-                instance.get('/user/bindEmail', {form:this.form})
+                this.$setToken()
+                instance.post('/user/bindEmail/'+this.$store.state.admin.admin.data.data.userId+'?'+"email="+this.form.email, this.form)
                     .then(res => {
+                      console.log(res)
                       if(res.data.success){
-                        this.$message.success('邮箱绑定成功')
-                        this.$router.push('/layout/home')
+                        this.$message.success('邮箱验证成功')
+
                         // 修改事件状态
                         this.$emit('confirm');
                       }else{
-                        this.$message.error(res.data.message)
+                        this.$router.push('/layout/home')
+                        this.$message.error(res.data.data)
                       }
                     })
                     .catch(res=>{
-                      this.$message.error(res.data.message)
+
                     })
-
-
               })
               .catch(error => {
+                console.log("错误了")
                 this.$message.error("验证码错误，请重新输入");
               });
         }else{

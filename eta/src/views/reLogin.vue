@@ -66,7 +66,7 @@ export default {
       form: {
         username: '',
         email: '',
-        verificationCode: ''
+        verificationCode: '',
 
       },
       rules: {
@@ -96,7 +96,7 @@ export default {
         this.$message.error('请先输入邮箱')
         return;
       }
-      sendEmailVerification(this.form.email)
+      sendEmailVerification(this.form.email,this.form.username)
           .then(response => {
             // this.dialogMessage = '验证码已发送到您的邮箱';
             // // this.dialogVisible = true;
@@ -117,17 +117,20 @@ export default {
           // Call API to verify the code and bind the email
           verifyCode(this.form.email, this.form.verificationCode)
               .then(async response => {
-                let {errerMsg, success} = await this.$post('/student/1', this.form);
-                if (success) {
+                let res = await this.$post('/user/login/RecoverPassword', this.form);
+                console.log(res)
+                if (res.success) {
                   //延时跳转
                   setTimeout(() => {
                    this.$message.success('邮箱验证成功');
+                   sessionStorage.setItem("userID", res.data);
+                   console.log(res.data);
                     // this.$router.push('/login');
                     // 使用windows进行跳转
                     window.location.href = '/relogin2';
-                  }, 3000);
+                  }, 100);
                 }else{
-                  this.$message.error(errorMsg)
+                  this.$message.error(res.errorMsg)
                 }
               })
 

@@ -48,14 +48,20 @@ export default {
         newPassword: '',
         confirmPassword: '',
         Md5password: '',
+        Md5oldPassword5:''
       },
       rules: {
         oldPassword: [
           { required: true, message: '请输入旧密码', trigger: 'blur' },
         ],
         newPassword: [
-          { required: true, message: '请输入新密码', trigger: 'blur' },
-          { min: 6, message: '密码长度不能少于6位', trigger: 'blur' },
+          { required: true, message: "密码不可为空", trigger: 'blur' },
+          { min: 8, message: "密码长度不能少于8个字符", trigger: 'blur' }, // 最小长度限制
+          { max: 20, message: "密码长度不能超过20个字符", trigger: 'blur' }, // 最大长度限制
+          { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]+$/,
+            message: "密码必须包含大小写字母、数字",
+            trigger: 'blur' }, // 字符复杂性限制
+
         ],
         confirmPassword: [
           { required: true, message: '请确认新密码', trigger: 'blur' },
@@ -90,12 +96,14 @@ export default {
       this.$refs.form.validate(async (valid) => {
         if (valid) {
           this.form.Md5password = strTomd5(this.form.newPassword);
-          instance.put('/user/update/'+this.$store.state.userID, this.form)
+          this.form.Md5oldPassword=strTomd5(this.form.oldPassword);
+          instance.put('/user/update/password/'+this.$store.state.admin.admin.data.data.userId, this.form)
               .then(response => {
+                console.log(response)
                 if(response.data.success) {
                   this.$message.success('修改成功');
                 }else{
-                  this.$message.error(response.data.message);
+                  this.$message.error(response.data.errorMsg);
                 }
               })
               .catch(error => {

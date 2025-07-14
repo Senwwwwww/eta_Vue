@@ -10,9 +10,9 @@
           <el-form ref="applyForm" :model="form" :rules="rules" label-width="120px" class="form">
             <el-form-item label="申请类型" prop="type">
               <el-select v-model="form.type" placeholder="请选择申请类型">
-                <el-option label="事假申请" value="leaveShi"></el-option>
-                <el-option label="病班申请" value="leaveBing"></el-option>
-                <el-option label="加班申请" value="outTime"></el-option>
+                <el-option label="事假申请" value="事假申请"></el-option>
+                <el-option label="病班申请" value="病假申请"></el-option>
+                <el-option label="加班申请" value="加班申请"></el-option>
               </el-select>
             </el-form-item>
 
@@ -58,6 +58,8 @@
 </template>
 
 <script>
+import {instance} from "@/util/request";
+
 export default {
   name: "ApplyPage",
   data() {
@@ -67,6 +69,7 @@ export default {
         reason: '',
         startTime: '',
         endTime: '',
+        userId: this.$store.state.admin.admin.data.data.userId
       },
       rules: {
         type: [{ required: true, message: '请选择申请类型', trigger: 'change' }],
@@ -81,11 +84,23 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.dialogVisible = true; // 显示提交结果弹窗
+          this.$setToken()
+          instance.post('/user/addNewApplicationInfo/'+this.$store.state.admin.admin.data.data.userId,this.form)
+              .then(response => {
+                if(response.data.success) {
+                  this.$message.success("申请成功");
+                }else{
+                  this.$message.error(response.data.errorMsg);
+                }
+              })
+              .catch(error => {
+                this.$message.error("申请失败");
+              })
         } else {
           console.log('error submit!!');
           return false;
         }
+        this.resetForm(formName)
       });
     },
     resetForm(formName) {

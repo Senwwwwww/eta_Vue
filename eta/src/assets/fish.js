@@ -20,6 +20,7 @@ var RENDERER = {
 		this.points = [];
 		this.fishes = [];
 		this.watchIds = [];
+		this.lastTime = null; // 添加时间戳记录
 	},
 	createSurfacePoints : function(){
 		var count = Math.round(this.width / this.POINT_INTERVAL);
@@ -140,10 +141,21 @@ var RENDERER = {
 	},
 	render : function(){
 		requestAnimationFrame(this.render);
+
+		// 添加帧率控制逻辑
+		var now = Date.now();
+		if (!this.lastTime) this.lastTime = now;
+		var delta = now - this.lastTime;
+
+		// 每33ms更新一次（约30fps）
+		if (delta < 20) return;
+		this.lastTime = now;
+
+		// 以下是原有的渲染逻辑
 		this.controlStatus();
 		this.context.clearRect(0, 0, this.width, this.height);
 		this.context.fillStyle = 'hsl(0, 0%, 95%)';
-		
+
 		for(var i = 0, count = this.fishes.length; i < count; i++){
 			this.fishes[i].render(this.context);
 		}
@@ -151,7 +163,7 @@ var RENDERER = {
 		this.context.globalCompositeOperation = 'xor';
 		this.context.beginPath();
 		this.context.moveTo(0, this.reverse ? 0 : this.height);
-		
+
 		for(var i = 0, count = this.points.length; i < count; i++){
 			this.points[i].render(this.context);
 		}

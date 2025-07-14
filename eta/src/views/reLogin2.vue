@@ -83,7 +83,13 @@ export default {
       rules: {
 
         password: [
-          {required: true, validator: validatePass, trigger: 'blur'}
+          { required: true, message: "密码不可为空", trigger: 'blur' },
+          { min: 8, message: "密码长度不能少于8个字符", trigger: 'blur' }, // 最小长度限制
+          { max: 20, message: "密码长度不能超过20个字符", trigger: 'blur' }, // 最大长度限制
+          { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]+$/,
+            message: "密码必须包含大小写字母、数字",
+            trigger: 'blur' }, // 字符复杂性限制
+          { validator: validatePass, trigger: 'blur' } // 自定义验证器
         ],
         checkPass: [
           {required: true, validator: validatePass2, trigger: 'blur'}
@@ -106,8 +112,13 @@ export default {
         if (valid) {
           this.form.Md5password = strTomd5(this.form.password);
           // 数据库同步
-          instance.put('/user/update/'+sessionStorage.getItem("userID")+'?'+'userId='+this.form.userId+'&&'+'password='+this.form.Md5password,this.form).then(response => {
-            window.location.href ='/reLoginok'
+          instance.put('/user/login/update/'+sessionStorage.getItem("userID")+'?'+'userId='+sessionStorage.getItem("userID")+'&&'+'password='+this.form.Md5password,this.form).then(response => {
+            console.log(response)
+            if(response.data.success) {
+              window.location.href = '/reLoginok'
+            }else{
+              this.$message.error(response.data.errorMsg)
+            }
           })
               .catch(error => {
                 this.$message.error("修改失败，请稍后再试")

@@ -83,11 +83,20 @@ export default {
       },
       rules: {
         username: [
-          {required: true, message: "账号不可为空", trigger: 'blur'}
+          { required: true, message: "账号不可为空", trigger: 'blur' },
+          { min: 5, message: "账号长度不能少于5个字符", trigger: 'blur' }, // 最小长度限制
+          { max: 20, message: "账号长度不能超过20个字符", trigger: 'blur' }, // 最大长度限制
+          { pattern: /^[a-zA-Z0-9_]+$/, message: "账号只能包含字母、数字和下划线", trigger: 'blur' }, // 字符类型限制
         ],
 
         password: [
-          {required: true, validator: validatePass, trigger: 'blur'}
+          { required: true, message: "密码不可为空", trigger: 'blur' },
+          { min: 8, message: "密码长度不能少于8个字符", trigger: 'blur' }, // 最小长度限制
+          { max: 20, message: "密码长度不能超过20个字符", trigger: 'blur' }, // 最大长度限制
+          { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]+$/,
+            message: "密码必须包含大小写字母、数字",
+            trigger: 'blur' }, // 字符复杂性限制
+          { validator: validatePass, trigger: 'blur' } // 自定义验证器
         ],
         checkPass: [
           {required: true, validator: validatePass2, trigger: 'blur'}
@@ -113,15 +122,17 @@ export default {
           // 设置md5编码
           this.form.Md5password = strTomd5(this.form.password);
           // 同步数据库
-          instance.post('/user/add', this.form).then(response => {
+          instance.post('/user/login/register', this.form).then(response => {
+            console.log(response)
             if (response.data.success) {
               this.$message.success("注册成功")
               console.log(response.data.data)
               sessionStorage.setItem("userID", response.data.data)
+              localStorage.setItem('loginID', this.form.username)
               // 延时跳转
               this.$router.push('/bind')
             } else {
-              this.$message.error("注册失败，请稍后再试")
+              this.$message.error(response.data.errorMsg)
             }
           })
               .catch(error => {

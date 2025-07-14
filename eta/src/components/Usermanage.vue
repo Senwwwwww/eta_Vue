@@ -1,4 +1,59 @@
+<template>
+  <el-card class="box-card"   style="width: 1150px; margin: 0 auto;">
+
+    <!-- 用户列表 -->
+    <el-table
+        :data="tableData"
+        style="width: 100%"
+        :default-sort="{ prop: 'date', order: 'descending' }"
+        max-height="600"
+        stripe
+
+    >
+      <el-table-column prop="username" label="账号" sortable width="130">
+        <template slot-scope="scope">
+          <span>{{ scope.row.username || '' }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="userId" label="用户ID" sortable width="130">
+        <template slot-scope="scope">
+          <span>{{ scope.row.userId || '' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="role.roleName" label="角色" sortable width="100">
+        <template slot-scope="scope">
+          <span>{{ scope.row.role?.roleName || '' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="employeeDTO.employeeId" label="员工ID" sortable width="130">
+        <template slot-scope="scope">
+          <span>{{ scope.row.employeeDTO?.employeeId || '' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="employeeDTO.realName" label="姓名" sortable width="120">
+        <template slot-scope="scope">
+          <span>{{ scope.row.employeeDTO?.realName || '' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="email" label="邮箱" sortable width="180">
+        <template slot-scope="scope">
+          <span>{{ scope.row.email || '' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="150">
+        <template slot-scope="scope">
+          <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
+
+    </el-table>
+  </el-card>
+</template>
+
 <script>
+import { instance } from "@/util/request";
+
 export default {
   name: "Manage",
   data() {
@@ -6,150 +61,108 @@ export default {
       dialog: false,
       loading: false,
       form: {
-        name: '',
-        id: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
+        username: '',
+        roleName: '',
+        departmentName: '',
+        email: '',
       },
       formLabelWidth: '80px',
       timer: null,
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }]
-    }
+      tableData: [],
+    };
+  },
+  mounted() {
+    this.$setToken();
+    this.fetchUsers();
   },
   methods: {
+    fetchUsers() {
+      instance.get('/user/admin/getAllUserInfo')
+          .then(response => {
+            if (response.data.success) {
+              this.tableData = response.data.data;
+            } else {
+              this.$message.error(response.data.errorMsg);
+            }
+          })
+          .catch(error => {
+            this.$message.error("请求失败");
+          });
+    },
     handleEdit(index, row) {
-      console.log(index, row);
+      this.dialog = true;
+      this.form = { ...row };
     },
     handleDelete(index, row) {
-      console.log(index, row);
+      this.$confirm(`确定要删除用户 ${row.username} 吗？`)
+          .then(() => {
+            this.$setToken();
+            instance.delete('/user/admin/deleteUserInfo?userId='+row.userId)
+                .then(response => {
+                  if (response.data.success) {
+                    this.tableData.splice(index, 1);
+                    this.$message.success("删除成功");
+                  } else {
+                    this.$message.error(response.data.errorMsg);
+                  }
+                })
+                .catch(error => {
+                  this.$message.error("删除失败");
+                });
+          })
+          .catch(() => {});
     },
-    formatter(row, column) {
-      return row.address;
+    submitForm() {
+      this.$refs.userForm.validate((valid) => {
+        if (valid) {
+          this.loading = true;
+          this.$setToken();
+          instance.post('/user/addOrUpdateUser', this.form)
+              .then(response => {
+                if (response.data.success) {
+                  this.fetchUsers();
+                  this.$message.success("操作成功");
+                  this.dialog = false;
+                } else {
+                  this.$message.error(response.data.errorMsg);
+                }
+                this.loading = false;
+              })
+              .catch(error => {
+                this.$message.error("操作失败");
+                this.loading = false;
+              });
+        } else {
+          this.$message.error("请填写完整表单");
+        }
+      });
     },
     handleClose(done) {
-      if (this.loading) {
-        return;
-      }
-      this.$confirm('确定要提交表单吗？')
-          .then(_ => {
-            this.loading = true;
-            this.timer = setTimeout(() => {
-              done();
-              // 动画关闭需要一定的时间
-              setTimeout(() => {
-                this.loading = false;
-              }, 400);
-            }, 2000);
+      if (this.loading) return;
+      this.$confirm('确定要关闭表单吗？')
+          .then(() => {
+            done();
           })
-          .catch(_ => {});
+          .catch(() => {});
     },
     cancelForm() {
-      this.loading = false;
       this.dialog = false;
+      this.loading = false;
       clearTimeout(this.timer);
-    }
-  }
-}
-
+      this.form = {
+        username: '',
+        roleName: '',
+        departmentName: '',
+        email: '',
+      };
+    },
+  },
+};
 </script>
 
-<template>
-  <el-card class="box-card">
-    <el-button @click="dialog = true" type="primary" style="margin-right: 16px;">
-      添加角色
-    </el-button>
-    <el-drawer
-        title="添加角色"
-        :before-close="handleClose"
-        :visible.sync="dialog"
-        direction="rtl"
-        custom-class="demo-drawer"
-        ref="drawer"
-    >
-      <div class="demo-drawer__content">
-        <el-form :model="form">
-          <el-form-item label="角色名" prop="name" :label-width="formLabelWidth">
-            <el-input v-model="form.name" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="角色权限" prop="resource" :label-width="formLabelWidth">
-            <el-input v-model="form.id" autocomplete="off"></el-input>
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-form-item>
-        </el-form>
-        <div class="demo-drawer__footer">
-          <el-button @click="cancelForm">取 消</el-button>
-          <el-button type="primary" @click="$refs.drawer.closeDrawer()" :loading="loading">{{ loading ? '提交中 ...' : '确 定' }}</el-button>
-        </div>
-      </div>
-    </el-drawer>
-    <el-table
-        :data="tableData"
-        style="width: 100%"
-        :default-sort = "{prop: 'date', order: 'descending'}"
-        max-height="600"
-    >
-      <el-table-column
-          prop="date"
-          label="日期"
-          sortable
-          width="180">
-        <template slot-scope="scope">
-          <i class="el-icon-time"></i>
-          <span style="margin-left: 10px">{{ scope.row.date }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-          prop="name"
-          label="姓名"
-          sortable
-          width="180">
-        <template slot-scope="scope">
-          <el-popover trigger="hover" placement="top">
-            <p>姓名: {{ scope.row.name }}</p>
-            <p>住址: {{ scope.row.address }}</p>
-            <div slot="reference" class="name-wrapper">
-              <el-tag size="medium">{{ scope.row.name }}</el-tag>
-            </div>
-          </el-popover>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作">
-        <template slot-scope="scope">
-          <el-button
-              size="mini"
-              @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-          <el-button
-              size="mini"
-              type="danger"
-              @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-  </el-card>
-
-</template>
-
 <style scoped>
-
+.demo-drawer__footer {
+  text-align: right;
+  margin-top: 20px;
+}
 </style>
