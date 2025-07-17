@@ -204,7 +204,7 @@ export default {
           </template>
           <el-menu-item index="/layout/AttRe" v-if="userDepartmentId !== 1 ">检修记录</el-menu-item>
           <el-menu-item index="/layout/AttReGui" v-if="userRole.roleLevel === 1000">制定检修规则</el-menu-item>
-          <el-menu-item index="/layout/AttUser" v-if="userRole.roleLevel <= 100">检修规则</el-menu-item>
+          <el-menu-item index="/layout/AttUser" v-if="userRole.roleLevel <= 100">巡检规则</el-menu-item>
           <el-menu-item index="/layout/jianxiu" v-if="userDepartmentId === 2 ">待检修</el-menu-item>
           <el-menu-item index="/layout/attendanceChange" v-if="userDepartmentId === 1 ">修改检修任务状态</el-menu-item>
           <el-menu-item index="/layout/instrumentChange" v-if="userDepartmentId === 1 ">电力器材管理</el-menu-item>

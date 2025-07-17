@@ -3,9 +3,6 @@
     <!-- 页面头部 -->
     <div class="header-section">
 
-
-
-
       <div class="title-section">
         <h2 class="page-title">
           <i class="el-icon-s-tools"></i>
@@ -49,6 +46,8 @@
                   clearable
                   @change="handleStatusFilter"
                   style="width: 120px; margin-right: 10px;"
+                  :popper-append-to-body="true"
+                  popper-class="status-filter-popper"
               >
                 <el-option label="全部" value=""></el-option>
                 <el-option label="待维修" value="待维修"></el-option>
@@ -62,6 +61,13 @@
               >
                 刷新
               </el-button>
+             <el-button
+               class="return-home-btn"
+               size="small"
+              @click="goToHomePage"
+              >
+               返回主页
+            </el-button>
             </div>
           </div>
 
@@ -407,6 +413,9 @@ export default {
     getCurrentEmployeeId() {
       return this.$store.state.admin.admin.data.data.employeeDTO?.employeeId;
     },
+    getRealName(){
+      return this.$store.state.admin.admin.data.data.employeeDTO?.realName;
+    },
     getTaskType(task) {
       const map = {
         '预防性维护': 'info',
@@ -686,7 +695,6 @@ export default {
 
 .table-card, .chart-card {
   border-radius: 12px;
-  overflow: hidden;
   border: none;
 }
 
@@ -880,4 +888,20 @@ export default {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
+.table-container {
+  overflow: visible !important;
+}
+.status-filter-popper {
+  z-index: 9999 !important;
+  position: absolute !important;
+}
+.return-home-btn {
+  background-color: green !important;
+  color: green !important;
+  border-color: #409EFF !important;
+  margin-left: 10px;
+}
+
 </style>
+
