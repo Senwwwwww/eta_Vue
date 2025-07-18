@@ -143,48 +143,86 @@
                 </div>
               </div>
 
-              <!-- 大屏模式下的检测模式选择器 -->
-              <div class="fullscreen-detection-selector" v-if="isFullscreen">
-                <div class="detection-label">检测模式:</div>
-                <el-select
-                    v-model="camera.detectionMode"
-                    @change="handleCameraDetectionModeChange(index)"
-                    class="fullscreen-mode-select"
-                    size="small"
-                    :teleported="true"
-                    :popper-append-to-body="true"
+<!--              &lt;!&ndash; 大屏模式下的检测模式选择器 &ndash;&gt;-->
+<!--              <div class="fullscreen-detection-selector" v-if="isFullscreen">-->
+<!--                <div class="detection-label">检测模式:</div>-->
+<!--                <el-select-->
+<!--                    v-model="camera.detectionMode"-->
+<!--                    @change="handleCameraDetectionModeChange(index)"-->
+<!--                    class="fullscreen-mode-select"-->
+<!--                    size="small"-->
+<!--                    :teleported="true"-->
+<!--                    :popper-append-to-body="true"-->
 
-                >
-                  <el-option label="人员检测" value="detectpeople"></el-option>
-                  <el-option label="缺陷检测" value="detectlost"></el-option>
-                </el-select>
+<!--                >-->
+<!--                  <el-option label="人员检测" value="detectpeople"></el-option>-->
+<!--                  <el-option label="缺陷检测" value="detectlost"></el-option>-->
+<!--                </el-select>-->
+<!--              </div>-->
+<!--              &lt;!&ndash; 报警控制按钮 &ndash;&gt;-->
+<!--              <div >-->
+<!--                <el-button-->
+<!--                    size="mini"-->
+<!--                    :type="camera.activebuzzer? 'danger' : 'success'"-->
+<!--                    @click="togglebuzzer(index)"-->
+<!--                >-->
+<!--                  {{ camera.activebuzzer ? '停止报警' : '开始报警' }}-->
+<!--                </el-button>-->
+<!--              </div>-->
+<!--              &lt;!&ndash; 录制控制按钮 &ndash;&gt;-->
+<!--              <div class="recording-controls" v-if="!isFullscreen">-->
+<!--                <el-button-->
+<!--                    size="mini"-->
+<!--                    :type="camera.isRecording ? 'danger' : 'success'"-->
+<!--                    @click="toggleRecording(index)"-->
+<!--                    :disabled="camera.status !== 'online'"-->
+<!--                >-->
+<!--                  <i :class="camera.isRecording ? 'el-icon-video-pause' : 'el-icon-video-play'"></i>-->
+<!--                  {{ camera.isRecording ? '停止录制' : '开始录制' }}-->
+<!--                </el-button>-->
+<!--              </div>-->
+              <!-- 按钮容器 -->
+              <div style="display: flex; gap: 10px; align-items: flex-start; align-self: flex-start;">
+                <!-- 报警控制按钮 -->
+                <div>
+                  <el-button
+                      size="mini"
+                      :type="camera.activebuzzer? 'danger' : 'success'"
+                      @click="togglebuzzer(index)"
+                  >
+                    {{ camera.activebuzzer ? '停止报警' : '开始报警' }}
+                  </el-button>
+                </div>
+                <!-- 录制控制按钮 -->
+                <div>
+                  <el-button
+                      size="mini"
+                      :type="camera.isRecording ? 'danger' : 'success'"
+                      @click="toggleRecording(index)"
+                      :disabled="camera.status !== 'online'"
+                  >
+                    <i :class="camera.isRecording ? 'el-icon-video-pause' : 'el-icon-video-play'"></i>
+                    {{ camera.isRecording ? '停止录制' : '开始录制' }}
+                  </el-button>
+                </div>
               </div>
 
-              <!-- 录制控制按钮 -->
-              <div class="recording-controls" v-if="!isFullscreen">
-                <el-button
-                    size="mini"
-                    :type="camera.isRecording ? 'danger' : 'success'"
-                    @click="toggleRecording(index)"
-                    :disabled="camera.status !== 'online'"
-                >
-                  <i :class="camera.isRecording ? 'el-icon-video-pause' : 'el-icon-video-play'"></i>
-                  {{ camera.isRecording ? '停止录制' : '开始录制' }}
-                </el-button>
-              </div>
 
-              <!-- 大屏模式下的录制控制按钮 -->
-              <div class="fullscreen-recording-controls" v-if="isFullscreen">
-                <el-button
-                    size="small"
-                    :type="camera.isRecording ? 'danger' : 'success'"
-                    @click="toggleRecording(index)"
-                    :disabled="camera.status !== 'online'"
-                >
-                  <i :class="camera.isRecording ? 'el-icon-video-pause' : 'el-icon-video-play'"></i>
-                  {{ camera.isRecording ? '停止录制' : '开始录制' }}
-                </el-button>
-              </div>
+
+<!--              &lt;!&ndash; 大屏模式下的录制控制按钮 &ndash;&gt;-->
+<!--              <div class="fullscreen-recording-controls" v-if="isFullscreen">-->
+<!--                <el-button-->
+<!--                    size="small"-->
+<!--                    :type="camera.isRecording ? 'danger' : 'success'"-->
+<!--                    @click="toggleRecording(index)"-->
+<!--                    :disabled="camera.status !== 'online'"-->
+<!--                >-->
+<!--                  <i :class="camera.isRecording ? 'el-icon-video-pause' : 'el-icon-video-play'"></i>-->
+<!--                  {{ camera.isRecording ? '停止录制' : '开始录制' }}-->
+<!--                </el-button>-->
+<!--              </div>-->
+
+
             </div>
           </div>
         </div>
@@ -603,7 +641,7 @@ export default {
         this.scrollTimer = null;
       }
     };
-
+    const activebuzzer =false;
     const cameras = ref([
       {
         id: 0,
@@ -614,7 +652,8 @@ export default {
         status: 'offline',
         statusText: '离线',
         isRecording: false,
-        detectionMode: 'detectpeople' // 添加独立的检测模式
+        detectionMode: 'detectpeople',
+        activebuzzer: false
       },
       {
         id: 1,
@@ -625,7 +664,8 @@ export default {
         status: 'offline',
         statusText: '离线',
         isRecording: false,
-        detectionMode: 'detectpeople' // 添加独立的检测模式
+        detectionMode: 'detectpeople', // 添加独立的检测模式
+        activebuzzer: false
       },
       {
         id: 2,
@@ -636,7 +676,8 @@ export default {
         status: 'offline',
         statusText: '离线',
         isRecording: false,
-        detectionMode: 'detectlost' // 添加独立的检测模式
+        detectionMode: 'detectlost' ,// 添加独立的检测模式
+        activebuzzer: false
       },
       {
         id: 3,
@@ -647,7 +688,8 @@ export default {
         status: 'offline',
         statusText: '离线',
         isRecording: false,
-        detectionMode: 'detectlost' // 添加独立的检测模式
+        detectionMode: 'detectlost', // 添加独立的检测模式
+        activebuzzer: false
       }
     ]);
 
@@ -659,6 +701,33 @@ export default {
     const updateTime = () => currentTime.value = dayjs().format('YYYY-MM-DD HH:mm:ss');
 
     const handleTaskTypeChange = () => startAllVideoStreams();
+
+    //报警控制
+    const togglebuzzer = async (cameraIndex) => {
+      const camera = cameras.value[cameraIndex];
+      try {
+        if (camera.activebuzzer) {
+          console.log('停止报警');
+          // 停止报警
+          await axios.post('http://192.168.138.102:5000/stop_buzzer', {
+            camera: cameraIndex
+          });
+          camera.activebuzzer = false;
+          camera.statusText = '在线';
+        } else {
+          // 启动报警
+          await axios.post('http://192.168.138.102:5000/start_buzzer', {
+            camera: cameraIndex
+          });
+          camera.activebuzzer = true;
+          camera.statusText = '报警中';
+        }
+    }
+    catch (error) {
+      console.error('报警操作失败:', error);
+      // 可以添加错误提示
+    }
+  };
 
 
     // 录制控制
@@ -782,17 +851,91 @@ export default {
     const stopAllVideoStreams = () => cameras.value.forEach(cam => { if (cam.interval) clearInterval(cam.interval); });
 
     const startVideoStream = (i) => {
+      i=i%2;
+      i*=2;
+      console.log('开始视频流', i);
       const cam = cameras.value[i];
       cam.isLoading = true;
       cam.status = 'connecting';
       cam.statusText = '连接中...';
 
-      const updateUrl = () => {
-        cam.videoUrl = `${baseVideoUrl}?camera=${i}&t=${Date.now()}&status=${cam.detectionMode}`;
+      // 清除之前的定时器
+      if (cam.interval) {
+        clearInterval(cam.interval);
+      }
+
+      // 添加错误计数器和重试机制
+      let consecutiveErrors = 0;
+      const maxConsecutiveErrors = 5;
+
+      const updateVideoFrame = async () => {
+        try {
+          const newUrl = `${baseVideoUrl}?camera=${i}&t=${Date.now()}&status=${cam.detectionMode}`;
+          
+          // 创建一个新的Image对象来测试图片是否能够成功加载
+          const testImg = new Image();
+          
+          return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              testImg.onload = null;
+              testImg.onerror = null;
+              reject(new Error('请求超时'));
+            }, 3000); // 3秒超时
+            
+            testImg.onload = () => {
+              clearTimeout(timeout);
+              // 图片加载成功，更新摄像头的videoUrl
+              cam.videoUrl = newUrl;
+              cam.status = 'online';
+              cam.statusText = cam.isRecording ? '录制中' : '在线';
+              cam.isLoading = false;
+              consecutiveErrors = 0; // 重置错误计数
+              resolve(true);
+            };
+            
+            testImg.onerror = () => {
+              clearTimeout(timeout);
+              // 图片加载失败，不更新videoUrl，保持原有图片
+              consecutiveErrors++;
+              console.warn(`摄像头 ${i} 图片加载失败 (${consecutiveErrors}/${maxConsecutiveErrors})，保持原有图片`);
+              
+              // 如果连续错误次数过多，更新状态
+              if (consecutiveErrors >= maxConsecutiveErrors) {
+                cam.status = 'error';
+                cam.statusText = '连接异常';
+                cam.isLoading = false;
+              }
+              
+              reject(false);
+            };
+            
+            testImg.src = newUrl;
+          });
+        } catch (error) {
+          consecutiveErrors++;
+          console.error(`摄像头 ${i} 更新失败 (${consecutiveErrors}/${maxConsecutiveErrors}):`, error);
+          
+          if (consecutiveErrors >= maxConsecutiveErrors) {
+            cam.status = 'error';
+            cam.statusText = '连接失败';
+            cam.isLoading = false;
+          }
+          
+          return false;
+        }
       };
 
-      updateUrl();
-      cam.interval = setInterval(updateUrl, 50);
+      // 立即执行一次
+      updateVideoFrame();
+
+      // 设置定时器，每66.67毫秒尝试更新一次
+      cam.interval = setInterval(async () => {
+        try {
+          await updateVideoFrame();
+        } catch (error) {
+          // 错误已在updateVideoFrame中处理
+        }
+      }, 66.67);
     };
 
     const handleVideoLoad = (i) => {
@@ -877,7 +1020,7 @@ export default {
       onVideoError, closeVideoPlayer, startAutoRefresh,
       stopAutoRefresh, startScrolling, stopScrolling, repairList, displayList, currentIndex,
       fetchData, updateDisplayList, getTaskTypeColor, getPriorityColor,
-      handleCameraDetectionModeChange,isAutoRefreshing // 添加新方法
+      handleCameraDetectionModeChange,isAutoRefreshing,togglebuzzer, // 添加新方法
     };
   },
 
@@ -889,6 +1032,12 @@ export default {
   },
   methods: {
 
+
+    mounted() {
+      // 组件挂载后检查紧急任务
+      this.checkUrgentTasks();
+    },
+
     openRepairDialog(row) {
       // 阻止事件冒泡
       event.stopPropagation();
@@ -898,6 +1047,56 @@ export default {
       this.dialogVisible = true;
       this.form = row;
 
+    },
+
+    // 检查紧急任务的方法
+    checkUrgentTasks() {
+      const urgentTasks = this.displayList.filter(task =>
+          task.priority === '紧急' || task.priority === 'urgent'
+      );
+
+      if (urgentTasks.length > 0) {
+        this.showUrgentWarning(urgentTasks);
+      }
+    },
+
+    // 显示紧急任务警告弹窗
+    showUrgentWarning(urgentTasks) {
+      const taskList = urgentTasks.map(task =>
+          `• ${task.task} - ${task.data || '无描述'} (${task.submitTime})`
+      ).join('\n');
+
+      this.$confirm(
+          `发现 ${urgentTasks.length} 个紧急任务需要立即处理：\n\n${taskList}`,
+          '紧急任务警告',
+          {
+            confirmButtonText: '立即处理',
+            cancelButtonText: '稍后处理',
+            type: 'warning',
+            dangerouslyUseHTMLString: false,
+            showClose: false,
+            closeOnClickModal: false,
+            closeOnPressEscape: false,
+            customClass: 'urgent-warning-dialog'
+          }
+      ).then(() => {
+        // 用户点击"立即处理"后的操作
+        this.handleUrgentTasks(urgentTasks);
+      }).catch(() => {
+        // 用户点击"稍后处理"后的操作
+        this.$message({
+          type: 'info',
+          message: '请记得及时处理紧急任务！'
+        });
+      });
+    },
+
+    // 处理紧急任务的方法
+    handleUrgentTasks(urgentTasks) {
+      // 这里可以实现具体的处理逻辑，比如跳转到第一个紧急任务
+      if (urgentTasks.length > 0) {
+        this.openRepairDialog(urgentTasks[0]);
+      }
     },
 
     submitRepairTask() {
@@ -915,6 +1114,20 @@ export default {
     goToHome() {
       this.$router.push('/layout/home').catch(() => {
       });
+    },
+    watch: {
+      // 监听 displayList 数据变化，自动检查紧急任务
+      displayList: {
+        handler(newVal) {
+          if (newVal && newVal.length > 0) {
+            this.$nextTick(() => {
+              this.checkUrgentTasks();
+            });
+          }
+        },
+        deep: true,
+        immediate: true
+      }
     },
 
   }
@@ -1152,6 +1365,7 @@ export default {
   font-size: 32px;
   background: linear-gradient(45deg, #00d4ff, #108ee9);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: pulse 2s infinite;
 }
@@ -1162,6 +1376,7 @@ export default {
   margin: 0;
   background: linear-gradient(45deg, #00d4ff, #108ee9);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
 }

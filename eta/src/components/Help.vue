@@ -43,6 +43,21 @@
         ></div>
       </div>
 
+      <!-- AI等待动画 -->
+      <div v-if="loading" class="chat-msg ai typing-indicator">
+        <div class="avatar" title="AI助手">
+          <img :src="aiAvatar" alt="avatar" />
+        </div>
+        <div class="message-content typing-content">
+          <div class="typing-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+          <span class="typing-text">AI正在思考中...</span>
+        </div>
+      </div>
+
       <!-- 空状态提示 -->
       <div v-if="chatMessages.length === 0" class="empty-state">
         <div class="empty-icon">🤖</div>
@@ -61,6 +76,7 @@
             :rows="1"
             :autosize="{ minRows: 1, maxRows: 5 }"
             class="input-textarea"
+            :disabled="loading"
         />
         <el-button
             type="primary"
@@ -68,6 +84,7 @@
             @click="sendMessage"
             class="send-btn"
             circle
+            :disabled="loading"
         >
           <i v-if="!loading" class="el-icon-s-promotion"></i>
         </el-button>
@@ -92,7 +109,7 @@ export default {
       API_KEY: "M5X110Q-JG5MB4S-GCPA56J-15ZDGCX",
       BASE_URL: "http://localhost:3001",
       WORKSPACE_ID: "3f4f4436-84af-4e5d-a408-1bb3d83fb09f",
-      userAvatar: "https://i.pravatar.cc/40?img=3",
+      userAvatar: "https://i.pravatar.cc/40?img=3", // 用户头像路径
       aiAvatar: "https://cdn-icons-png.flaticon.com/512/4712/4712027.png",
       sessionId: "web-session-1",
     };
@@ -105,7 +122,7 @@ export default {
       if (!this.userInput.trim()) return;
 
       const userMessage = this.userInput.trim();
-      this.chatMessages.push({ role: "user", text: userMessage });
+      this.chatMessages.push({role: "user", text: userMessage});
       this.saveChatToStorage();
       this.loading = true;
       this.userInput = "";
@@ -134,7 +151,7 @@ export default {
         let aiText = response.data.textResponse || "（无响应）";
         aiText = this.removeThinkTags(aiText).trim();
 
-        this.chatMessages.push({ role: "ai", text: aiText });
+        this.chatMessages.push({role: "ai", text: aiText});
         this.saveChatToStorage();
 
         this.$nextTick(() => {
@@ -164,7 +181,7 @@ export default {
         breaks: true,
         highlight: function (code, lang) {
           if (lang && hljs.getLanguage(lang)) {
-            return hljs.highlight(code, { language: lang }).value;
+            return hljs.highlight(code, {language: lang}).value;
           } else {
             return hljs.highlightAuto(code).value;
           }
@@ -250,8 +267,12 @@ export default {
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .header-left h2 {
@@ -429,6 +450,85 @@ export default {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
+/* 等待动画样式 */
+.typing-indicator {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.typing-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f0f9ff;
+  border: 2px solid #bae6fd;
+  color: #0369a1;
+  min-height: 50px;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0369a1;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes typing {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.typing-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0369a1;
+  animation: pulse-text 2s infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* Markdown样式优化 */
 .message-content :deep(pre) {
   background: #1a202c;
@@ -493,6 +593,12 @@ export default {
   color: #a0aec0;
 }
 
+.input-textarea :deep(.el-textarea__inner):disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
 .send-btn {
   width: 44px;
   height: 44px;
@@ -506,7 +612,7 @@ export default {
   flex-shrink: 0;
 }
 
-.send-btn:hover {
+.send-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
@@ -518,6 +624,13 @@ export default {
 .send-btn:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+.send-btn:disabled {
+  background: #e2e8f0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* 响应式设计 */

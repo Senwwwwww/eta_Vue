@@ -1,7 +1,7 @@
 // src/api/email.js
 import axios from 'axios';
 
-export const url = "http://10.100.164.82";
+export const url = "http://10.100.164.82:5678";
 
 export function sendEmailVerification(email,username) {
     return axios.post(url+'/api/send-verification-code', { email,username });

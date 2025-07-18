@@ -49,11 +49,8 @@
                 @change="handleFilter"
             >
               <el-option label="全部类型" value=""></el-option>
-              <el-option label="预防性维护" value="预防性维护"></el-option>
-              <el-option label="故障维修" value="故障维修"></el-option>
-              <el-option label="定期检查" value="定期检查"></el-option>
-              <el-option label="升级改造" value="升级改造"></el-option>
-              <el-option label="应急维修" value="应急维修"></el-option>
+              <el-option label="人员检测" value="detectpeople"></el-option>
+              <el-option label="缺陷检测" value="detectlost"></el-option>
             </el-select>
           </el-col>
           <el-col :span="8">
