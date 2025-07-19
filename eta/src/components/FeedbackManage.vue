@@ -413,12 +413,9 @@ export default {
     },
 
     viewDetails(record) {
-      if(record.type!="检修问题") {
-        this.selectedRecord = record;
-        this.dialogVisible = true;
-      }else{
-        this.$router.push({ path: 'attendanceChange' });
-      }
+      this.selectedRecord = record;
+      this.dialogVisible = true;
+      
     },
 
     markAsResolved(record) {
