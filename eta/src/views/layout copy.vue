@@ -362,7 +362,6 @@ export default {
   overflow: hidden;
   position: relative;
 
-
   // 科技感背景效果
   &::before {
     content: '';
@@ -379,7 +378,6 @@ export default {
     z-index: -1;
   }
 
-
   .left {
     width: 260px;
     background: linear-gradient(180deg, #1e3a5f 0%, #0f1b2e 100%);
@@ -389,7 +387,6 @@ export default {
     position: relative;
     z-index: 1;
     box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
-
 
     // 侧边栏发光效果
     &::after {
@@ -406,8 +403,6 @@ export default {
         transparent 100%);
       box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
     }
-  
-
 
     .logo {
       width: 100%;
@@ -436,6 +431,7 @@ export default {
         text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
         animation: pulse-electric 2s infinite;
       }
+
       // 底部装饰线
       &::after {
         content: '';
@@ -450,7 +446,6 @@ export default {
         box-shadow: 0 0 10px rgba(0, 212, 255, 0.7);
       }
     }
-  
 
     // 菜单样式优化
     ::v-deep .el-menu {
@@ -469,14 +464,12 @@ export default {
           transition: all 0.3s ease;
           position: relative;
           
-          
           &:hover {
             background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), rgba(24, 144, 255, 0.1)) !important;
             color: #00d4ff !important;
             transform: translateX(5px);
             box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
           }
-          
 
           i {
             color: #00d4ff;
@@ -484,14 +477,12 @@ export default {
             font-size: 16px;
           }
         }
-        
 
         &.is-active > .el-submenu__title {
           background: linear-gradient(90deg, rgba(0, 212, 255, 0.3), rgba(24, 144, 255, 0.2)) !important;
           color: #00d4ff !important;
         }
       }
-
 
       .el-menu-item {
         background: transparent !important;
@@ -503,7 +494,6 @@ export default {
         line-height: 42px !important;
         transition: all 0.3s ease;
         border-left: 3px solid transparent;
-      }
         
         &:hover {
           background: linear-gradient(90deg, rgba(0, 212, 255, 0.15), rgba(24, 144, 255, 0.08)) !important;
@@ -512,8 +502,6 @@ export default {
           border-left-color: #00d4ff;
           box-shadow: 0 3px 10px rgba(0, 212, 255, 0.2);
         }
-
-
 
         &.is-active {
           background: linear-gradient(90deg, rgba(0, 212, 255, 0.25), rgba(24, 144, 255, 0.15)) !important;
@@ -531,7 +519,7 @@ export default {
     flex-direction: column;
     background: linear-gradient(135deg, #f8faff 0%, #e6f4ff 100%);
     position: relative;
-    // z-index: 0;
+    z-index: 1;
 
     .nav {
       height: 70px;
@@ -666,6 +654,7 @@ export default {
       }
     }
   }
+}
 
 // 电力脉冲动画
 @keyframes pulse-electric {

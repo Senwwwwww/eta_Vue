@@ -61,13 +61,7 @@
               >
                 刷新
               </el-button>
-             <el-button
-               class="return-home-btn"
-               size="small"
-              @click="goToHomePage"
-              >
-               返回主页
-            </el-button>
+      
             </div>
           </div>
 

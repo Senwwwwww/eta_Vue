@@ -53,11 +53,6 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="lastInspectionTime" label="最后巡检时间" width="180">
-          <template #default="scope">
-            {{ formatDate(scope.row.lastInspectionTime) }}
-          </template>
-        </el-table-column>
         <el-table-column label="操作" width="400">
           <template #default="scope">
             <el-button size="mini" type="primary" @click="showEditDialog(scope.row)">

@@ -539,7 +539,11 @@ export default {
     const displayList = ref([]);
     const currentIndex = ref(0);
     const handleCameraDetectionModeChange = (cameraIndex) => {
-      startVideoStream(cameraIndex);
+      try {
+        startVideoStream(cameraIndex);
+      } catch (error) {
+        console.error('切换检测模式失败:', error);
+      }
     };
 
 
@@ -563,21 +567,22 @@ export default {
     };
 
     const updateDisplayList = () => {
-      if (repairList.value.length <= 6) {
-        displayList.value = [...repairList.value];
-        return;
+      try {
+        if (repairList.value.length <= 6) {
+          displayList.value = [...repairList.value];
+          return;
+        }
+        const totalItems = repairList.value.length;
+        const items = [];
+        for (let i = 0; i < 6; i++) {
+          const index = (currentIndex.value + i) % totalItems;
+          items.push(repairList.value[index]);
+        }
+        displayList.value = items;
+        currentIndex.value = (currentIndex.value + 1) % totalItems;
+      } catch (error) {
+        console.error('更新任务列表失败:', error);
       }
-
-      const totalItems = repairList.value.length;
-      const items = [];
-
-      for (let i = 0; i < 6; i++) {
-        const index = (currentIndex.value + i) % totalItems;
-        items.push(repairList.value[index]);
-      }
-
-      displayList.value = items;
-      currentIndex.value = (currentIndex.value + 1) % totalItems;
     };
 
     const getTaskTypeColor = (t) => {
@@ -646,7 +651,7 @@ export default {
       {
         id: 0,
         name: '摄像头1',
-        location: '主入口',
+        location: '',
         videoUrl: '',
         isLoading: false,
         status: 'offline',
@@ -658,7 +663,7 @@ export default {
       {
         id: 1,
         name: '摄像头2',
-        location: '走廊A',
+        location: '',
         videoUrl: '',
         isLoading: false,
         status: 'offline',
@@ -670,7 +675,7 @@ export default {
       {
         id: 2,
         name: '摄像头3',
-        location: '走廊B',
+        location: '',
         videoUrl: '',
         isLoading: false,
         status: 'offline',
@@ -682,7 +687,7 @@ export default {
       {
         id: 3,
         name: '摄像头4',
-        location: '后门',
+        location: '',
         videoUrl: '',
         isLoading: false,
         status: 'offline',
@@ -831,18 +836,26 @@ export default {
     };
 
     const closeVideoPlayer = () => {
-      showVideoPlayer.value = false;
-      currentVideo.value = {};
+      try {
+        showVideoPlayer.value = false;
+        currentVideo.value = {};
+      } catch (error) {
+        console.error('关闭视频播放器失败:', error);
+      }
     };
 
     // 全屏 & DOM 全屏 API
     const toggleFullscreen = () => {
-      if (isFullscreen.value) {
-        isFullscreen.value = false;
-        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-      } else {
-        isFullscreen.value = true;
-        if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { isFullscreen.value = false; });
+      try {
+        if (isFullscreen.value) {
+          isFullscreen.value = false;
+          if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        } else {
+          isFullscreen.value = true;
+          if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { isFullscreen.value = false; });
+        }
+      } catch (error) {
+        console.error('切换全屏失败:', error);
       }
     };
     const handleFullscreenChange = () => { if (!document.fullscreenElement && isFullscreen.value) isFullscreen.value = false; };
@@ -879,7 +892,6 @@ export default {
             const timeout = setTimeout(() => {
               testImg.onload = null;
               testImg.onerror = null;
-              reject(new Error('请求超时'));
             }, 3000); // 3秒超时
             
             testImg.onload = () => {
@@ -939,53 +951,78 @@ export default {
     };
 
     const handleVideoLoad = (i) => {
-      const cam = cameras.value[i];
-      cam.status = 'online';
-      cam.statusText = cam.isRecording ? '录制中' : '在线';
-      cam.isLoading = false;
+      try {
+        const cam = cameras.value[i];
+        cam.status = 'online';
+        cam.statusText = cam.isRecording ? '录制中' : '在线';
+        cam.isLoading = false;
+      } catch (error) {
+        console.error('视频加载处理失败:', error);
+      }
     };
-    const handleVideoError = (i) => { const cam = cameras.value[i]; cam.status = 'error'; cam.statusText = '连接失败'; cam.isLoading = false; };
+    const handleVideoError = (i) => {
+      try {
+        const cam = cameras.value[i];
+        cam.status = 'error';
+        cam.statusText = '连接失败';
+        cam.isLoading = false;
+      } catch (error) {
+        console.error('视频错误处理失败:', error);
+      }
+    };
 
     const selectedCamera = ref(null);
-    const selectCamera = (i) => { selectedCamera.value = i; };
+    const selectCamera = (i) => {
+      try {
+        selectedCamera.value = i;
+      } catch (error) {
+        console.error('选择摄像头失败:', error);
+      }
+    };
 
     // 键盘事件处理
     const keyStates = reactive({});
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isFullscreen.value) {
-        e.preventDefault();
-        toggleFullscreen();
-        return;
-      }
-
-      if (e.key === 'F11') {
-        e.preventDefault();
-        toggleFullscreen();
-        return;
-      }
-
-      if (e.key === ' ') {
-        e.preventDefault(); // 阻止页面滚动
-        if (isAutoRefreshing.value) {
-          stopAutoRefresh();
-          isAutoRefreshing.value = false;
-        } else {
-          startAutoRefresh();
-          isAutoRefreshing.value = true;
+      try {
+        if (e.key === 'Escape' && isFullscreen.value) {
+          e.preventDefault();
+          toggleFullscreen();
+          return;
         }
-        return;
-      }
-
-      if (!keyStates[e.key] && selectedCamera.value !== null) {
-        keyStates[e.key] = { start: Date.now() };
-        sendKeyState(e.key, 'press');
+        if (e.key === 'F11') {
+          e.preventDefault();
+          toggleFullscreen();
+          return;
+        }
+        if (e.key === ' ') {
+          e.preventDefault(); // 阻止页面滚动
+          if (isAutoRefreshing.value) {
+            stopAutoRefresh();
+            isAutoRefreshing.value = false;
+          } else {
+            startAutoRefresh();
+            isAutoRefreshing.value = true;
+          }
+          return;
+        }
+        if (!keyStates[e.key] && selectedCamera.value !== null) {
+          keyStates[e.key] = { start: Date.now() };
+          sendKeyState(e.key, 'press');
+        }
+      } catch (error) {
+        console.error('键盘事件处理失败:', error);
       }
     };
     const handleKeyUp = (e) => {
-      const info = keyStates[e.key]; if (info) {
-        const duration = Date.now() - info.start;
-        sendKeyState(e.key, 'release', duration);
-        delete keyStates[e.key];
+      try {
+        const info = keyStates[e.key];
+        if (info) {
+          const duration = Date.now() - info.start;
+          sendKeyState(e.key, 'release', duration);
+          delete keyStates[e.key];
+        }
+      } catch (error) {
+        console.error('键盘抬起事件处理失败:', error);
       }
     };
 

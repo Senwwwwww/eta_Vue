@@ -263,6 +263,7 @@
 
     <!-- 状态修改对话框 -->
     <el-dialog
+        
         title="修改检修任务状态"
         :visible.sync="statusDialog.visible"
         width="500px"
