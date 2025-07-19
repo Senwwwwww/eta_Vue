@@ -236,7 +236,7 @@ export default {
           </el-menu-item>
           <el-menu-item index="/layout/instrumentChange" v-if="userDepartmentId === 1 ">
             <i class="el-icon-cpu"></i>
-            电力器材管理
+            电力设备管理
           </el-menu-item>
         </el-submenu>
         <el-submenu index="3"   v-if="userRole.roleLevel <= 100">
@@ -309,28 +309,28 @@ export default {
             退出
           </el-menu-item>
 
-          <el-submenu index="5">
+       <el-submenu index="5" style="color: black;">
             <template slot="title">
-              <i class="el-icon-user-solid"></i>
-              <span>{{userName}}</span>
+              <i class="el-icon-user-solid" ></i>
+              <span >{{userName}}</span>
             </template>
-            <el-menu-item index="/layout/person">
-              <i class="el-icon-s-order"></i>
+            <el-menu-item index="/layout/person" style="color: black;">
+              <i class="el-icon-s-order" style="color: black;"></i>
               个人中心
             </el-menu-item>
-            <el-menu-item index="/layout/change">
-              <i class="el-icon-key"></i>
+            <el-menu-item index="/layout/change" style="color: black;">
+              <i class="el-icon-key" style="color: black;"></i>
               修改密码
             </el-menu-item>
 
             <!-- 重新登录：设置唯一index，通过事件阻止路由跳转 -->
-            <el-menu-item index="/login" @click.prevent="exit">
-              <i class="el-icon-refresh"></i>
+            <el-menu-item index="/login" @click.prevent="exit" style="color: black;">
+              <i class="el-icon-refresh" style="color: black;"></i>
               重新登录
             </el-menu-item>
 
-            <el-menu-item index="/layout/yuanID">
-              <i class="el-icon-postcard"></i>
+            <el-menu-item index="/layout/yuanID" style="color: black;">
+              <i class="el-icon-postcard" style="color: black;"></i>
               绑定员工ID
             </el-menu-item>
           </el-submenu>

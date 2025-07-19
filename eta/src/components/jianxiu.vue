@@ -314,6 +314,7 @@
               placeholder="选择完成时间"
               style="width: 100%"
               :default-time="['00:00:00']"
+              :disabled="true"
           >
           </el-date-picker>
         </el-form-item>

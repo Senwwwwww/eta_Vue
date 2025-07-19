@@ -3,6 +3,11 @@ module.exports = defineConfig({
   lintOnSave:false,
   transpileDependencies: true,
   devServer: {
+    // client: {
+    //   overlay: false,
+    // },
+
+
     proxy: {
       // 配置代理服务器
       '/api': {

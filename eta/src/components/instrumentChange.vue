@@ -210,12 +210,12 @@
 
     <!-- 发布维修任务对话框 -->
     <el-dialog title="发布维修任务" :visible.sync="repairDialogVisible" width="500px">
-      <el-form :model="repairForm" label-width="100px">
+      <el-form :model="repairForm" label-width="100px" ref="repairForm" :rules="repairRules">
         <el-form-item label="任务标题">
           <el-input v-model="repairForm.title" />
         </el-form-item>
-        <el-form-item label="任务描述">
-          <el-input type="textarea" v-model="repairForm.data" :rows="4" />
+        <el-form-item label="任务描述" prop="data">
+          <el-input type="textarea" v-model="repairForm.data" :rows="4" placeholder="请输入任务描述"/>
         </el-form-item>
         <el-form-item label="维修类型">
           <el-select v-model="repairForm.task" placeholder="请选择">
@@ -305,6 +305,14 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+
+      // 维修表单验证规则
+      repairRules: {
+        data: [
+          { required: true, message: '请输入任务描述', trigger: 'blur' },
+          { min: 10, message: '描述内容至少10个字符', trigger: 'blur' }
+        ]
+      },
 
       // 设备对话框
       instrumentDialogVisible: false,
@@ -579,8 +587,10 @@ export default {
 
     // 提交维修任务
     async submitRepairTask() {
-
       try {
+        // 表单验证
+        await this.$refs.repairForm.validate();
+        
         this.$setToken();
         const response = await instance.post('/api/publictask', this.repairForm);
 

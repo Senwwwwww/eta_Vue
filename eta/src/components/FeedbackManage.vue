@@ -36,9 +36,10 @@
           <label>反馈类型</label>
           <el-select v-model="filterType" placeholder="请选择类型" clearable>
             <el-option label="全部" value=""></el-option>
-            <el-option label="功能建议" value="功能建议"></el-option>
-            <el-option label="Bug报告" value="Bug报告"></el-option>
-            <el-option label="其他" value="其他"></el-option>
+            <el-option label="功能问题" value="功能问题"></el-option>
+            <el-option label="UI问题" value="UI问题"></el-option>
+             <el-option label="性能问题" value="性能问题"></el-option>
+            <el-option label="检修问题" value="检修问题"></el-option>
           </el-select>
         </div>
         <div class="filter-item">

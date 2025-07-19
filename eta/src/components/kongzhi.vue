@@ -54,7 +54,19 @@
         <div class="section-subtitle">REAL-TIME MONITORING</div>
       </div>
 
-      <!-- 4. 修改大屏模式信息栏 -->
+      <!-- 添加摄像头控制按钮 -->
+      <div class="camera-control-bar">
+        <el-button
+          class="camera-control-btn"
+          :type="isCameraEnabled ? 'danger' : 'success'"
+          @click="toggleCameraSystem"
+        >
+          <i :class="isCameraEnabled ? 'el-icon-video-pause' : 'el-icon-video-play'"></i>
+          {{ isCameraEnabled ? '关闭摄像头系统' : '开启摄像头系统' }}
+        </el-button>
+      </div>
+
+    <!-- 4. 修改大屏模式信息栏 -->
       <div class="fullscreen-info-bar" v-if="isFullscreen">
         <div class="info-item">
           <span class="info-label">当前时间:</span>
@@ -297,17 +309,26 @@
         class="tech-dialog"
     >
       <el-form :model="form" label-width="100px" class="tech-form">
-        <el-form-item label="任务描述">
+        <el-form-item>
+          <template #label>
+            <span class="custom-label">任务描述</span>
+          </template>
           <el-input type="textarea" v-model="form.data" class="tech-input" />
         </el-form-item>
-        <el-form-item label="维修类型">
+        <el-form-item>
+          <template #label>
+            <span class="custom-label">维修类型</span>
+          </template>
           <el-select v-model="form.task" placeholder="请选择" class="tech-select">
             <el-option label="人员检测" value="detectpeople" />
             <el-option label="缺陷检测" value="detectlost" />
             <el-option label="其他" value="other" />
           </el-select>
         </el-form-item>
-        <el-form-item label="维修优先级">
+        <el-form-item>
+          <template #label>
+            <span class="custom-label">维修优先级</span>
+          </template>
           <el-select v-model="form.priority" placeholder="请选择" class="tech-select">
             <el-option label="紧急" value="紧急" />
             <el-option label="高" value="高" />
@@ -430,7 +451,7 @@
                 </template>
               </el-table-column>
 
-              <el-table-column label="⚙️ 操作" width="230" fixed="right">
+              <el-table-column label="⚙️ 操作" width="300" fixed="right">
                 <template #default="scope">
                   <div style="display: flex; gap: 8px;">
                     <el-button
@@ -450,6 +471,15 @@
                     >
                       <i class="el-icon-download"></i>
                       下载
+                    </el-button>
+                    <el-button
+                        size="mini"
+                        type="danger"
+                        @click="this.deleteVideo(scope.row)"
+                        class="action-btn"
+                    >
+                      <i class="el-icon-delete"></i>
+                      删除
                     </el-button>
                   </div>
                 </template>
@@ -534,7 +564,7 @@ export default {
   },
 
   setup() {
-
+    const isCameraEnabled = ref(false); // 添加摄像头系统状态控制
     const repairList = ref([]);
     const displayList = ref([]);
     const currentIndex = ref(0);
@@ -793,12 +823,18 @@ export default {
 
     // 播放历史视频
     const playHistoryVideo = async (video) => {
-      videoLoading.value = true;
-      currentVideo.value = {
-        ...video,
-        videoUrl: `http://192.168.138.102:5000/get_video/${video.filename}`
-      };
-      showVideoPlayer.value = true;
+      try {
+        videoLoading.value = true;
+        currentVideo.value = {
+          ...video,
+          videoUrl: `http://192.168.138.102:5000/get_video/${video.filename}`
+        };
+        showVideoPlayer.value = true;
+      } catch (error) {
+        console.error('播放视频失败:', error);
+        ElMessage.error('播放视频失败');
+        videoLoading.value = false;
+      }
     };
 
     // 下载视频
@@ -820,6 +856,7 @@ export default {
         console.error('下载视频失败:', error);
       }
     };
+
 
     // 视频播放事件
     const onVideoLoadStart = () => {
@@ -860,10 +897,39 @@ export default {
     };
     const handleFullscreenChange = () => { if (!document.fullscreenElement && isFullscreen.value) isFullscreen.value = false; };
 
-    const startAllVideoStreams = () => cameras.value.forEach((_, i) => startVideoStream(i));
-    const stopAllVideoStreams = () => cameras.value.forEach(cam => { if (cam.interval) clearInterval(cam.interval); });
+    // 添加摄像头系统控制方法
+    const toggleCameraSystem = () => {
+      isCameraEnabled.value = !isCameraEnabled.value;
+      if (isCameraEnabled.value) {
+        startAllVideoStreams();
+      } else {
+        stopAllVideoStreams();
+        // 清除所有摄像头的视频流
+        cameras.value.forEach(cam => {
+          cam.videoUrl = '';
+          cam.status = 'offline';
+          cam.statusText = '已关闭';
+          cam.isLoading = false;
+        });
+      }
+    };
+
+    const startAllVideoStreams = () => {
+      if (isCameraEnabled.value) {
+        cameras.value.forEach((_, i) => startVideoStream(i));
+      }
+    };
+    
+    const stopAllVideoStreams = () => cameras.value.forEach(cam => { 
+      if (cam.interval) {
+        clearInterval(cam.interval);
+        cam.interval = null;
+      } 
+    });
 
     const startVideoStream = (i) => {
+      if (!isCameraEnabled.value) return;
+      
       i=i%2;
       i*=2;
       console.log('开始视频流', i);
@@ -886,15 +952,15 @@ export default {
           const newUrl = `${baseVideoUrl}?camera=${i}&t=${Date.now()}&status=${cam.detectionMode}`;
           
           // 创建一个新的Image对象来测试图片是否能够成功加载
-          const testImg = new Image();
-          
-          return new Promise((resolve, reject) => {
+          await new Promise((resolve, reject) => {
+            const testImg = new Image();
             const timeout = setTimeout(() => {
               testImg.onload = null;
               testImg.onerror = null;
             }, 3000); // 3秒超时
             
             testImg.onload = () => {
+
               clearTimeout(timeout);
               // 图片加载成功，更新摄像头的videoUrl
               cam.videoUrl = newUrl;
@@ -945,13 +1011,14 @@ export default {
         try {
           await updateVideoFrame();
         } catch (error) {
+          console.error(`摄像头 ${i} 更新失败:`, error);
           // 错误已在updateVideoFrame中处理
         }
       }, 66.67);
     };
 
     const handleVideoLoad = (i) => {
-      try {
+      try {   
         const cam = cameras.value[i];
         cam.status = 'online';
         cam.statusText = cam.isRecording ? '录制中' : '在线';
@@ -1053,11 +1120,12 @@ export default {
       handleVideoLoad, handleVideoError, toggleRecording,
       showHistoryDialog, showVideoPlayer, historyLoading, videoLoading,
       historyVideos, currentVideo, historyFilter, loadHistoryVideos,
-      playHistoryVideo, downloadVideo, onVideoLoadStart, onVideoCanPlay,
+      playHistoryVideo, downloadVideo,  onVideoLoadStart, onVideoCanPlay,
       onVideoError, closeVideoPlayer, startAutoRefresh,
       stopAutoRefresh, startScrolling, stopScrolling, repairList, displayList, currentIndex,
       fetchData, updateDisplayList, getTaskTypeColor, getPriorityColor,
-      handleCameraDetectionModeChange,isAutoRefreshing,togglebuzzer, // 添加新方法
+      handleCameraDetectionModeChange, isAutoRefreshing, togglebuzzer,
+      isCameraEnabled, toggleCameraSystem, // 添加新的摄像头控制相关内容
     };
   },
 
@@ -1084,6 +1152,20 @@ export default {
       this.dialogVisible = true;
       this.form = row;
 
+    },
+
+       // 删除视频
+    async deleteVideo(video){
+      try {
+        const response = await axios.get(`http://192.168.138.102:5000/delete_video/${video.filename}`);
+        if (response.status === 200) {
+          this.$message.success('删除成功');
+          await loadHistoryVideos();
+        }
+      } catch (error) {
+        console.error('删除视频失败:', error);
+        this.$message.error('删除失败');
+      }
     },
 
     // 检查紧急任务的方法
@@ -1137,6 +1219,7 @@ export default {
     },
 
     submitRepairTask() {
+      this.$setToken();
       instance.post('/api/publictask', this.form)
           .then(r => {
             if (r.data.success) {
@@ -1223,6 +1306,13 @@ export default {
   .camera-mode-select {
     width: 100%;
   }
+}
+
+.custom-label {
+  color: #00d4ff;
+  font-size: 16px;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
 }
 
 .monitor-screen {
@@ -1463,6 +1553,26 @@ export default {
 }
 
 /* 视频网格样式 */
+.camera-control-bar {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+  margin-bottom: 20px;
+}
+
+.camera-control-btn {
+  min-width: 160px;
+  padding: 10px 20px;
+  font-size: 16px !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.camera-control-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 .video-grid-section {
   padding: 30px 40px;
   max-width: 1400px;
