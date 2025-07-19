@@ -503,7 +503,7 @@ export default {
         line-height: 42px !important;
         transition: all 0.3s ease;
         border-left: 3px solid transparent;
-      }
+      
         
         &:hover {
           background: linear-gradient(90deg, rgba(0, 212, 255, 0.15), rgba(24, 144, 255, 0.08)) !important;
@@ -663,6 +663,7 @@ export default {
             rgba(0, 212, 255, 0.02) 4px
           );
         pointer-events: none;
+      }
       }
     }
   }
