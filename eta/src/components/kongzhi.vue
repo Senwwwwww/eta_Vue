@@ -276,7 +276,11 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="data" label="维修内容" />
+          <el-table-column label="维修内容">
+            <template #default="scope">
+              <span>{{ convertFaultCode(scope.row.data) }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="priority" label="优先级" width="100">
             <template #default="scope">
               <el-tag :type="getPriorityColor(scope.row.priority)" effect="dark">
@@ -475,7 +479,7 @@
                     <el-button
                         size="mini"
                         type="danger"
-                        @click="this.deleteVideo(scope.row)"
+                        @click="deleteVideo(scope.row)"
                         class="action-btn"
                     >
                       <i class="el-icon-delete"></i>
@@ -613,6 +617,29 @@ export default {
       } catch (error) {
         console.error('更新任务列表失败:', error);
       }
+    };
+
+    // 故障类型转换函数
+    const convertFaultCode = (content) => {
+      if (!content) return '无描述';
+      
+      const [code, count] = content.split(' ');
+      const faultTypes = {
+        'bj_bpmh': '表盘模糊(表盘图像模糊)',
+        'bj_bpps': '表盘破损(表盘有破损)',
+        'bj_wkps': '外壳破损(设备外壳破损)',
+        'jyz_pl': '绝缘子破裂',
+        'sly_dmyw': '地面油污(渗漏油导致的油污)',
+        'hxq_gjtps': '呼吸器硅胶筒破损',
+        'hxq_gjbs': '呼吸器硅胶变色(硅胶变色)',
+        'xmbhyc': '箱门闭合异常(箱门未关好)',
+        'yw_gkxfw': '挂空悬浮物(悬挂的异物)',
+        'yw_nc': '鸟巢(鸟类筑巢)',
+        'bjds': '表计读数异常(读数不正常)'
+      };
+
+      const faultName = faultTypes[code] || code;
+      return `${faultName}${count ? ` (${count}处)` : ''}`;
     };
 
     const getTaskTypeColor = (t) => {
@@ -854,6 +881,31 @@ export default {
         window.URL.revokeObjectURL(url);
       } catch (error) {
         console.error('下载视频失败:', error);
+      }
+    };
+
+    // 删除视频
+    const deleteVideo = async (video) => {
+      try {
+        // 添加确认对话框
+        const confirmResult = await new Promise((resolve) => {
+          // 使用原生confirm或可以替换为Element UI的MessageBox
+          const result = confirm(`确定要删除视频 "${video.filename}" 吗？此操作无法撤销。`);
+          resolve(result);
+        });
+
+        if (!confirmResult) {
+          return;
+        }
+
+        const response = await axios.get(`http://192.168.138.102:5000/delete_video/${video.filename}`);
+        if (response.status === 200) {
+          console.log('删除成功');
+          // 重新加载历史视频列表
+          await loadHistoryVideos();
+        }
+      } catch (error) {
+        console.error('删除视频失败:', error);
       }
     };
 
@@ -1120,12 +1172,12 @@ export default {
       handleVideoLoad, handleVideoError, toggleRecording,
       showHistoryDialog, showVideoPlayer, historyLoading, videoLoading,
       historyVideos, currentVideo, historyFilter, loadHistoryVideos,
-      playHistoryVideo, downloadVideo,  onVideoLoadStart, onVideoCanPlay,
+      playHistoryVideo, downloadVideo, deleteVideo, onVideoLoadStart, onVideoCanPlay,
       onVideoError, closeVideoPlayer, startAutoRefresh,
       stopAutoRefresh, startScrolling, stopScrolling, repairList, displayList, currentIndex,
       fetchData, updateDisplayList, getTaskTypeColor, getPriorityColor,
       handleCameraDetectionModeChange, isAutoRefreshing, togglebuzzer,
-      isCameraEnabled, toggleCameraSystem, // 添加新的摄像头控制相关内容
+      isCameraEnabled, toggleCameraSystem, convertFaultCode, // 添加新的摄像头控制相关内容
     };
   },
 
@@ -1152,20 +1204,6 @@ export default {
       this.dialogVisible = true;
       this.form = row;
 
-    },
-
-       // 删除视频
-    async deleteVideo(video){
-      try {
-        const response = await axios.get(`http://192.168.138.102:5000/delete_video/${video.filename}`);
-        if (response.status === 200) {
-          this.$message.success('删除成功');
-          await loadHistoryVideos();
-        }
-      } catch (error) {
-        console.error('删除视频失败:', error);
-        this.$message.error('删除失败');
-      }
     },
 
     // 检查紧急任务的方法

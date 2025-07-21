@@ -18,7 +18,7 @@
           </el-descriptions-item>
         </el-descriptions>
 
-        <div style="margin-top: 20px;" v-if="userDepartmentId()===1">
+        <div style="margin-top: 20px;" >
           <h4>修改状态</h4>
           <el-select v-model="newStatus" placeholder="请选择新状态" style="width: 200px;">
             <el-option label="正常" value="normal"></el-option>
@@ -169,7 +169,7 @@ export default {
           status: this.newStatus
         });
 
-        if (response.data && response.data.success) {
+        if (response.data && response.data.success ) {
           this.instrumentInfo.status = this.newStatus;
           this.$message.success('状态更新成功');
         } else {
